@@ -37,7 +37,7 @@ def export_to_step(inventor_file_path):
         step_dir = os.path.join(output_dir, "STEP_Exports")
         if not os.path.exists(step_dir):
             os.makedirs(step_dir)
-        step_file_path = os.path.join(step_dir, f"{base_name}.step")
+        step_file_path = os.path.join(output_dir, f"{base_name}.step")
         
         print(f"Will save to: {step_file_path}")
         
