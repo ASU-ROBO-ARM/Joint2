@@ -17,18 +17,18 @@ def export_to_step(inventor_file_path):
         # Connect to Inventor
         try:
             inventor_app = win32com.client.GetActiveObject('Inventor.Application')
-            print("✓ Connected to running Inventor instance")
+            print("Connected to running Inventor instance")
         except:
             print("Starting new Inventor instance...")
             inventor_app = win32com.client.Dispatch('Inventor.Application')
             inventor_app.Visible = True  # Set to True for testing
-            print("✓ Started new Inventor instance")
+            print("Started new Inventor instance")
             time.sleep(2)  # Give Inventor time to initialize
         
         # Open the document
         print(f"Opening document...")
         document = inventor_app.Documents.Open(inventor_file_path)
-        print(f"✓ Successfully opened: {os.path.basename(inventor_file_path)}")
+        print(f"Successfully opened: {os.path.basename(inventor_file_path)}")
         
         # Generate output path
         output_dir = os.path.dirname(inventor_file_path)
@@ -44,11 +44,11 @@ def export_to_step(inventor_file_path):
         # Use direct SaveCopyAs with STEP format
         print("Starting export...")
         document.SaveAs(step_file_path, True)  # True means Save Copy
-        print(f"✓ SUCCESS: Exported to {step_file_path}")
+        print(f"SUCCESS: Exported to {step_file_path}")
         
         # Close the document
         document.Close(False)  # False = don't save changes
-        print("✓ Document closed")
+        print("Document closed")
         
         print("Export process complete!")
         
