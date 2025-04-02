@@ -32,7 +32,7 @@ jobs:
       shell: pwsh
       run: |
         # PowerShell script to find and process Inventor files
-        $inventorFiles = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Include *.ipt,*.iam
+        $inventorFiles = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Include *.ipt
         
         foreach ($file in $inventorFiles) {
           Write-Host "Processing $($file.FullName)"
