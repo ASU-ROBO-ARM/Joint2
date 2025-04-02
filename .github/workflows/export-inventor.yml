@@ -10,6 +10,8 @@ on:
 jobs:
   export-to-step:
     runs-on: self-hosted
+    permissions:
+      contents: write    # Add permission to write to repository
     
     steps:
     - name: Checkout repository
@@ -42,6 +44,6 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add **\*.step
+        git add *.step
         git commit -m "Export Inventor files to STEP" || echo "No changes to commit"
         git push
