@@ -1,0 +1,85 @@
+name: Inventor to STEP 3D Printing Workflow
+
+on:
+  push:
+    paths:
+      - '**/*.ipt'  # Trigger on push to .ipt files
+  workflow_dispatch:  # Allow manual triggering
+
+env:
+  SLICER_SETTINGS: "0.2mm layer, 20% infill, supports=auto"
+  MATERIAL_DENSITY_G_CM3: "1.24"
+  SUPPORTS_ENABLED: "true"
+  FILAMENT_COST_PER_KG: "20.00"
+
+jobs:
+  process-inventor-files:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pywin32 reportlab
+          # Install PrusaSlicer (this is a placeholder - adjust based on actual installation method)
+          # You may need to download and install PrusaSlicer separately or use a custom action
+      
+      - name: Find modified .ipt files
+        id: find-ipt
+        shell: pwsh
+        run: |
+          $files = git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | Where-Object { $_ -match '\.ipt$' }
+          if (-not $files) {
+            $files = Get-ChildItem -Path . -Filter "*.ipt" -Recurse -File | Select-Object -ExpandProperty FullName
+          }
+          echo "::set-output name=files::$($files -join ',')"
+
+      - name: Export to STEP
+        shell: pwsh
+        run: |
+          $ipt_files = "${{ steps.find-ipt.outputs.files }}".Split(',')
+          foreach ($file in $ipt_files) {
+            if (Test-Path $file) {
+              Write-Host "Processing $file"
+              python .github/scripts/export_to_step.py "$file"
+            }
+          }
+      
+      - name: Slice STEP files
+        shell: pwsh
+        run: |
+          $step_dirs = Get-ChildItem -Path . -Filter "STEP_Exports" -Recurse -Directory | Select-Object -ExpandProperty FullName
+          foreach ($dir in $step_dirs) {
+            $step_files = Get-ChildItem -Path $dir -Filter "*.step" -File | Select-Object -ExpandProperty FullName
+            foreach ($file in $step_files) {
+              Write-Host "Slicing $file"
+              python .github/scripts/slice_with_prusa.py "$file"
+            }
+          }
+      
+      - name: Generate BOM
+        shell: pwsh
+        run: |
+          $stats_dirs = Get-ChildItem -Path . -Filter "Slicer_Stats" -Recurse -Directory | Select-Object -ExpandProperty FullName
+          foreach ($dir in $stats_dirs) {
+            Write-Host "Generating BOM for $dir"
+            python .github/scripts/generate_bom.py "$dir"
+          }
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: 3D-Print-Artifacts
+          path: |
+            **/STEP_Exports/**
+            **/Slicer_Stats/**
+            **/BOM/**
+          retention-days: 7

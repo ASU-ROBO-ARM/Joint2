@@ -30,6 +30,16 @@ def export_to_step(inventor_file_path):
         document = inventor_app.Documents.Open(inventor_file_path)
         print(f"Successfully opened: {os.path.basename(inventor_file_path)}")
         
+        # Check iProperty
+        try:
+            document.PropertySets.Item("Inventor User Defined Properties").Item("3D_PRINTED")
+        except Exception as e:
+            print(f"Property '3D_RINTED' not found in {os.path.basename(inventor_file_path)}: {str(e)}")
+            return None
+        if not document.PropertySets.Item("Inventor User Defined Properties").Item("3D_PRINTED").Value:
+            print(f"Skipping non-3D-printed part: {inventor_file_path}")
+            return None
+
         # Generate output path
         output_dir = os.path.dirname(inventor_file_path)
         base_name = os.path.splitext(os.path.basename(inventor_file_path))[0]
