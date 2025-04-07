@@ -46,7 +46,7 @@ def slice_with_prusa(step_file_path):
 
         # Extract settings from config
         # Consider making filament_cost_per_kg an argument or env variable
-        filament_cost_per_kg = extract_config_value(config_content, "filament_cost_per_kg", 20.0)
+        filament_cost_per_kg = extract_config_value(config_content, "filament_cost", 2500.0)
         supports_enabled = extract_config_value(config_content, "supports_enabled", True)
         # Consider making slicer_settings an argument or derive dynamically
         slicer_settings = extract_config_value(config_content, "slicer_settings",
