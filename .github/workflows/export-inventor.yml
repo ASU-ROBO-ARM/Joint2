@@ -34,7 +34,7 @@ jobs:
       id: find-ipt
       shell: pwsh
       run: |
-        $files = git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | Where-Object { $_ -match '\.ipt$' }
+        $files = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Include *.ipt
         if (-not $files) {
           $files = Get-ChildItem -Path . -Filter "*.ipt" -Recurse -File | Select-Object -ExpandProperty FullName
         }
@@ -43,6 +43,7 @@ jobs:
     - name: Export to STEP
       shell: pwsh
       run: |
+      
         $ipt_files = "${{ steps.find-ipt.outputs.files }}".Split(',')
         foreach ($file in $ipt_files) {
           if (Test-Path $file) {
