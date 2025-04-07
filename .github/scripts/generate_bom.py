@@ -171,7 +171,7 @@ def generate_csv_bom(csv_path, parts_data, total_cost, total_weight):
                 "Object Weight (g)",
                 "Supports Weight (g)",
                 "Total Weight (g)",
-                "Price (USD)",
+                "Price (EGP)",
                 "Dimensions (mm)",
                 "Print Time",
                 "Print Settings"
@@ -199,7 +199,7 @@ def generate_csv_bom(csv_path, parts_data, total_cost, total_weight):
                 "Object Weight (g)": "",
                 "Supports Weight (g)": "",
                 "Total Weight (g)": f"{total_weight:.4f}",
-                "Price (USD)": f"${total_cost:.2f}",
+                "Price (EGP)": f"${total_cost:.2f}",
                 "Dimensions (mm)": "",
                 "Print Time": "",
                 "Print Settings": ""
@@ -239,7 +239,7 @@ def generate_pdf_bom_reportlab(pdf_path, parts_data, total_cost, total_weight):
 
         table_data = [
             ["Part Name", "Object Wt (g)", "Supports Wt (g)", "Total Wt (g)",
-             "Price (USD)", "Dimensions (mm)", "Print Time", "Print Settings"]
+             "Price (EGP)", "Dimensions (mm)", "Print Time", "Print Settings"]
         ]
 
         for part in parts_data:
@@ -317,7 +317,7 @@ def generate_pdf_bom_fpdf(pdf_path, parts_data, total_cost, total_weight):
         pdf.set_font('Arial', 'B', 10)
         pdf.set_fill_color(200, 220, 255)
         headers = ["Part Name", "Object Wt (g)", "Supports Wt (g)", "Total Wt (g)",
-                   "Price (USD)", "Dimensions (mm)", "Print Time", "Print Settings"]
+                   "Price (EGP)", "Dimensions (mm)", "Print Time", "Print Settings"]
         for i, header in enumerate(headers):
             pdf.cell(col_widths[i], 8, header, 1, 0, 'C', 1)
         pdf.ln()
