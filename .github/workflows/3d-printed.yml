@@ -74,6 +74,11 @@ jobs:
             python .github/scripts/generate_bom.py "$dir"
           }
       
+      - name: Verify upload-artifact action version
+        run: |
+          echo "Checking if actions/upload-artifact@v2 is available"
+          curl -sSfL https://github.com/actions/upload-artifact/releases/tag/v2
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:

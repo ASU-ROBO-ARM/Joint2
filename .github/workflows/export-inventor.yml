@@ -26,17 +26,50 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pywin32
-        
-    - name: Export Inventor files to STEP
+        pip install pywin32 reportlab
+        # Install PrusaSlicer (this is a placeholder - adjust based on actual installation method)
+        # You may need to download and install PrusaSlicer separately or use a custom action
+    
+    - name: Find modified .ipt files
+      id: find-ipt
       shell: pwsh
       run: |
-        # PowerShell script to find and process Inventor files
-        $inventorFiles = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -Include *.ipt
-        
-        foreach ($file in $inventorFiles) {
-          Write-Host "Processing $($file.FullName)"
-          python $env:GITHUB_WORKSPACE\.github\scripts\export_to_step.py "$($file.FullName)"
+        $files = git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | Where-Object { $_ -match '\.ipt$' }
+        if (-not $files) {
+          $files = Get-ChildItem -Path . -Filter "*.ipt" -Recurse -File | Select-Object -ExpandProperty FullName
+        }
+        echo "::set-output name=files::$($files -join ',')"
+
+    - name: Export to STEP
+      shell: pwsh
+      run: |
+        $ipt_files = "${{ steps.find-ipt.outputs.files }}".Split(',')
+        foreach ($file in $ipt_files) {
+          if (Test-Path $file) {
+            Write-Host "Processing $file"
+            python .github/scripts/export_to_step.py "$file"
+          }
+        }
+    
+    - name: Slice STEP files
+      shell: pwsh
+      run: |
+        $step_dirs = Get-ChildItem -Path . -Filter "STEP_Exports" -Recurse -Directory | Select-Object -ExpandProperty FullName
+        foreach ($dir in $step_dirs) {
+          $step_files = Get-ChildItem -Path $dir -Filter "*.step" -File | Select-Object -ExpandProperty FullName
+          foreach ($file in $step_files) {
+            Write-Host "Slicing $file"
+            python .github/scripts/slice_with_prusa.py "$file"
+          }
+        }
+    
+    - name: Generate BOM
+      shell: pwsh
+      run: |
+        $stats_dirs = Get-ChildItem -Path . -Filter "Slicer_Stats" -Recurse -Directory | Select-Object -ExpandProperty FullName
+        foreach ($dir in $stats_dirs) {
+          Write-Host "Generating BOM for $dir"
+          python .github/scripts/generate_bom.py "$dir"
         }
         
     - name: Commit STEP files
