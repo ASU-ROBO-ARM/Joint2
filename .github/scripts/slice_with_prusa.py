@@ -169,9 +169,9 @@ def slice_with_prusa(step_file_path):
             metrics["supports_weight_g"] = 0.0
 
         # Ensure weights are numbers before converting/calculating price
-        total_weight_g = metrics["total_weight_g"] if isinstance(metrics["total_weight_g"], (int, float)) else 0.0
-        object_weight_g = metrics["object_weight_g"] if isinstance(metrics["object_weight_g"], (int, float)) else 0.0
-        supports_weight_g = metrics["supports_weight_g"] if isinstance(metrics["supports_weight_g"], (int, float)) else 0.0
+        total_weight_g = round(metrics["total_weight_g"] if isinstance(metrics["total_weight_g"], (int, float)) else 0.0, 1)
+        object_weight_g = round(metrics["object_weight_g"] if isinstance(metrics["object_weight_g"], (int, float)) else 0.0, 1)
+        supports_weight_g = round(metrics["supports_weight_g"] if isinstance(metrics["supports_weight_g"], (int, float)) else 0.0, 1)
 
 
         # Convert to kg and calculate price
@@ -180,7 +180,8 @@ def slice_with_prusa(step_file_path):
         metrics["supports_weight_kg"] = supports_weight_g / 1000.0
 
         if isinstance(filament_cost_per_kg, (int, float)) and filament_cost_per_kg > 0:
-             metrics["price_egp"] = metrics["total_weight_kg"] * filament_cost_per_kg
+             # Calculate price based on total weight to 1 decimal place
+             metrics["price_egp"] = round(metrics["total_weight_kg"] * filament_cost_per_kg, 1)
         else:
              metrics["price_egp"] = 0.0
              print(f"WARNING: Invalid filament cost per kg ({filament_cost_per_kg}). Price set to 0.")
