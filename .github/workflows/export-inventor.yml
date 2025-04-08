@@ -78,5 +78,7 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add *.step
+        git add *.pdf
+        git add *.csv
         git commit -m "Export Inventor files to STEP" || echo "No changes to commit"
         git push
